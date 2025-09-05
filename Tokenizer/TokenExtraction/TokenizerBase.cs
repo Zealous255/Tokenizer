@@ -24,10 +24,10 @@
 
         public TokenizerBase()
         {
-            ConifgureTokenDefinitions();
+            ConfigureTokenDefinitions();
         }
 
-        public abstract void ConifgureTokenDefinitions();
+        public abstract void ConfigureTokenDefinitions();
 
         public void RegisterTokenDefinition(TokenDefinition<TokenTypeT> tokenDefinition)
         {

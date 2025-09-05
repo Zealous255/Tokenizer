@@ -24,9 +24,9 @@ namespace TokenizerTests
 
         }
 
-        public override void ConifgureTokenDefinitions()
+        public override void ConfigureTokenDefinitions()
         {
-            RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Joe,new MultiCharacterRegexExtractor<FooTokenType>(@"^Joe$")));
+            RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Joe, new MultiCharacterRegexExtractor<FooTokenType>(@"^Joe$")));
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Mamma, new MultiCharacterExtractor<FooTokenType>(@"++")));
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Dugg, new SingleCharacterRegexExtractor<FooTokenType>(@"\+")));
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Newline, new NewlineExtractor<FooTokenType>(@"^\r\n$")));
