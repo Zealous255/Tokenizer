@@ -2,8 +2,14 @@
 {
     internal static class Curser
     {
-        public static int position { get; set; }
-        public static int line { get; set; }
+        public static int position { get; set; } = 1;
+        public static int line { get; set; } = 1;
+
+        public static void NewLine()
+        {
+            position = 1;
+            line++;
+        }
     }
 
     public abstract class TokenizerBase<TokenTypeT> where TokenTypeT : Enum
@@ -12,7 +18,9 @@
         private List<TokenDefinition<TokenTypeT>> _tokenDefinitions = new List<TokenDefinition<TokenTypeT>>();
 
         private string _originalInputString = string.Empty;
-        private int _inputLength;
+
+        public int InputLength { get {  return _originalInputString.Length; } }
+        public string OriginalInputString { get; }
 
         public TokenizerBase()
         {
@@ -30,12 +38,9 @@
         {
             List<Token<TokenTypeT>> tokens = new List<Token<TokenTypeT>>();
 
-            Curser.line = 1;
-
             PrepareCharacterStack(inputString);
 
             _originalInputString = inputString;
-            _inputLength = _originalInputString.Length;
 
             while (_tokenStack.Any())
             {
@@ -60,17 +65,6 @@
             }
 
             return returnToken;
-        }
-
-        public void AdvanceCurserPosition(int amount)
-        {
-            Curser.position += amount;
-        }
-
-        public void CurserNewline()
-        {
-            Curser.position = 0;
-            Curser.line++;
         }
 
         private void PrepareCharacterStack(string inputString)

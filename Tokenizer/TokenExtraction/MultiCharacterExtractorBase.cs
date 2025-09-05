@@ -41,8 +41,6 @@
         {
             Token<TokenTypeT> returnToken = new Token<TokenTypeT>(Curser.position, Curser.line, Buffer.Length, Buffer, tokenType);
 
-            Curser.position += Buffer.Length;
-
             Buffer = string.Empty;
 
             return returnToken;

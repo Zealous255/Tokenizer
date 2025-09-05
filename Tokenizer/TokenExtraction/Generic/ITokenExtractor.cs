@@ -1,4 +1,4 @@
-﻿namespace Tokenizer.TokenExtraction
+﻿namespace Tokenizer.TokenExtraction.Generic
 {
     public interface ITokenExtractor<TokenTypeT> where TokenTypeT : Enum
     {

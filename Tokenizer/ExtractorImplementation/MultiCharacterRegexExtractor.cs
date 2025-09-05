@@ -15,6 +15,15 @@ namespace Tokenizer.Extractors
             _matchCharacterConstraint = SetMatchConstraint(matchPredicate);
         }
 
+        public override Token<TokenTypeT> TryExtractToken(TokenTypeT tokenType)
+        {
+            Token<TokenTypeT> token = base.TryExtractToken(tokenType);
+
+            Curser.position += token.Text.Length;
+
+            return token;
+        }
+
         protected override bool BufferMatch()
         {
             return _regexMatch.IsMatch(Buffer);

@@ -11,6 +11,7 @@ namespace TokenizerTests
         Ditches,
         FizzBuzz,
         BuzzFizz,
+        Newline,
         Whitespace,
         Tab
     }
@@ -28,6 +29,7 @@ namespace TokenizerTests
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Joe,new MultiCharacterRegexExtractor<FooTokenType>(@"^Joe$")));
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Mamma, new MultiCharacterExtractor<FooTokenType>(@"++")));
             RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Dugg, new SingleCharacterRegexExtractor<FooTokenType>(@"\+")));
+            RegisterTokenDefinition(new TokenDefinition<FooTokenType>(FooTokenType.Newline, new NewlineExtractor<FooTokenType>(@"^\r\n$")));
         }
     }
 
@@ -88,6 +90,22 @@ namespace TokenizerTests
             // assert
             Assert.IsTrue(tokens[0].TokenType == FooTokenType.Mamma);
             Assert.IsTrue(tokens[1].TokenType == FooTokenType.Dugg);
+        }
+
+        [TestMethod]
+        public void Tokenizer_should_extract_newline_characters_and_track_line_number_of_detected_token()
+        {
+            // arrange
+            FooTokenizer tokenizer = new FooTokenizer();
+
+            // act
+            List<Token<FooTokenType>> tokens = tokenizer.Tokenize("Joe+++\r\n+Joe+\r\nJoe");
+            List<Token<FooTokenType>> joeTokens = tokens.Where(x => x.Text.Equals("Joe")).ToList();
+
+            // assert
+            Assert.IsTrue(joeTokens[0].Line == 1);
+            Assert.IsTrue(joeTokens[1].Line == 2);
+            Assert.IsTrue(joeTokens[2].Line == 3);
         }
     }
 }

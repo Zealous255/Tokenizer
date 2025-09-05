@@ -31,7 +31,11 @@ namespace Tokenizer.Extractors
 
         public override Token<TokenTypeT> TryExtractToken(TokenTypeT tokenType)
         {
-            return new Token<TokenTypeT>(Curser.position, Curser.line, 1, _buffer.ToString(), tokenType);
+            Token<TokenTypeT> token = new Token<TokenTypeT>(Curser.position, Curser.line, 1, _buffer.ToString(), tokenType);
+
+            Curser.position++;
+
+            return token;
         }
     }
 }
