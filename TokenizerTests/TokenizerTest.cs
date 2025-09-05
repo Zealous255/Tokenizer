@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Tokenizer;
+﻿using Tokenizer;
 using Tokenizer.Extractors;
 using Tokenizer.TokenExtraction;
 
