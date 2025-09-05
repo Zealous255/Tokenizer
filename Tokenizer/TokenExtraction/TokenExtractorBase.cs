@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tokenizer.TokenExtraction
+﻿namespace Tokenizer.TokenExtraction
 {
     public abstract class TokenExtractorBase<TokenTypeT> : ITokenExtractor<TokenTypeT>
         where TokenTypeT : Enum
