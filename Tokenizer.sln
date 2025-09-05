@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tokenizer", "Tokenizer\Tokenizer.csproj", "{8340A612-BF76-4F5A-A3BC-129D38477C90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenizerTests", "TokenizerTests\TokenizerTests.csproj", "{D940D654-B5FB-4B5C-9243-25B4820BC51D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8340A612-BF76-4F5A-A3BC-129D38477C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8340A612-BF76-4F5A-A3BC-129D38477C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8340A612-BF76-4F5A-A3BC-129D38477C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8340A612-BF76-4F5A-A3BC-129D38477C90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D940D654-B5FB-4B5C-9243-25B4820BC51D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D940D654-B5FB-4B5C-9243-25B4820BC51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D940D654-B5FB-4B5C-9243-25B4820BC51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D940D654-B5FB-4B5C-9243-25B4820BC51D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
