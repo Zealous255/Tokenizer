@@ -1,4 +1,6 @@
-﻿namespace Tokenizer.TokenExtraction
+﻿using System.Text.RegularExpressions;
+
+namespace Tokenizer.TokenExtraction
 {
     internal static class Curser
     {
@@ -16,6 +18,7 @@
     {
         private Stack<char> _tokenStack = new Stack<char>();
         private List<TokenDefinition<TokenTypeT>> _tokenDefinitions = new List<TokenDefinition<TokenTypeT>>();
+        private List<EscapeSquenceDefinition> _escapeSequenceDefintiions = new List<EscapeSquenceDefinition>();
 
         private string _originalInputString = string.Empty;
 
@@ -34,6 +37,11 @@
             _tokenDefinitions.Add(tokenDefinition);
         }
 
+        public void RegisterEscapeSequence(EscapeSquenceDefinition escapeSequenceDefinition)
+        {
+            _escapeSequenceDefintiions.Add(escapeSequenceDefinition);
+        }
+
         public List<Token<TokenTypeT>> Tokenize(string inputString)
         {
             List<Token<TokenTypeT>> tokens = new List<Token<TokenTypeT>>();
@@ -44,10 +52,39 @@
 
             while (_tokenStack.Any())
             {
-                tokens.Add(FindTokenMatch(_tokenStack));
+                if (IsEmptySpace(_tokenStack.Peek()))
+                {
+                    _tokenStack.Pop();
+                } else
+                {
+                    DiscardEscapedCharacters();
+
+                    if (_tokenStack.Any())
+                        tokens.Add(FindTokenMatch(_tokenStack));
+                }
+
             }
 
             return tokens;
+        }
+
+        protected virtual bool IsEmptySpace(char current)
+        {
+            return (Regex.Match(current.ToString(), @"([ ]|\t)").Success);
+        }
+
+        private void DiscardEscapedCharacters()
+        {
+            foreach (EscapeSquenceDefinition escapeSquenceDefinition in _escapeSequenceDefintiions)
+            {
+                if (_tokenStack.Any())
+                {
+                    escapeSquenceDefinition.EscapeSequence.ProcessDiscardSequence(_tokenStack);
+                } else
+                {
+                    break;
+                }
+            }
         }
 
         private Token<TokenTypeT> FindTokenMatch(Stack<char> tokenStack)
@@ -61,7 +98,6 @@
                     returnToken = _tokenDefinitions[i].Extractor.TryExtractToken(_tokenDefinitions[i].TokenType);
                     break;
                 }
-
             }
 
             return returnToken;

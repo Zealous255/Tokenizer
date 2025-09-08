@@ -29,7 +29,7 @@ namespace Tokenizer.Extractors
             return _regexMatch.IsMatch(Buffer);
         }
 
-        protected override bool IsMatchExtension(char current)
+        protected override bool IsMatchCharset(char current)
         {
             return _matchCharacterConstraint.IsMatch(current.ToString());
         }

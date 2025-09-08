@@ -26,7 +26,7 @@ namespace Tokenizer.Extractors
             return _matchPredicate.Equals(Buffer);
         }
 
-        protected override bool IsMatchExtension(char current)
+        protected override bool IsMatchCharset(char current)
         {
             foreach (char c in _charSet)
             {

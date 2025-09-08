@@ -14,14 +14,14 @@
         {
             char current = input.Peek();
 
-            if (!IsMatchExtension(current))
+            if (!IsMatchCharset(current))
             {
                 return false;
             }
 
             Buffer = input.Pop().ToString();
 
-            while (input.Any() && IsMatchExtension(current))
+            while (input.Any() && IsMatchCharset(current))
             {
                 Buffer = string.Concat(Buffer, input.Pop());
 
@@ -58,7 +58,7 @@
         /// </summary>
         /// <param name="current">Current character from the stack</param>
         /// <returns></returns>
-        protected abstract bool IsMatchExtension(char current);
+        protected abstract bool IsMatchCharset(char current);
 
         /// <summary>
         /// Rewinds the character stack if the multi character extractor cannot match 
