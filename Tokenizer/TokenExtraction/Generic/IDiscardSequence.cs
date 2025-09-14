@@ -9,6 +9,6 @@ namespace Tokenizer.TokenExtraction.Generic
     public interface IDiscardSequence
     {
 
-        public void ProcessDiscardSequence(Stack<char> characterStack);
+        public bool ProcessedEscapeSequence(Stack<char> characterStack);
     }
 }

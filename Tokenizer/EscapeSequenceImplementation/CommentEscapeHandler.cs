@@ -12,15 +12,8 @@ namespace Tokenizer.EscapeSequenceImplementation
 {
     public class CommentEscapeHandler : IDiscardSequence
     {
-
-        private string _beginningSequence { get; } = string.Empty;
-
+        private string _beginningSequence { get;  } = string.Empty;
         private string _endingSequence { get; } = string.Empty;
-
-        private Regex? _startConstraint;
-
-        private Regex? _endConstraint;
-
         private string _buffer = string.Empty;
 
 
@@ -32,97 +25,115 @@ namespace Tokenizer.EscapeSequenceImplementation
         }
 
 
-        public void ProcessDiscardSequence(Stack<char> characterStack)
+        public bool ProcessedEscapeSequence(Stack<char> characterStack)
         {
-            Regex beginRegex = new Regex(_beginningSequence);
-            Regex endRegex = new Regex(_endingSequence);
-
-            _startConstraint = TryConstractMatchConstraint(_beginningSequence) ?? null;
-            _endConstraint = TryConstractMatchConstraint(_endingSequence) ?? null;
-
             char current = characterStack.Peek();
 
+            _buffer = string.Empty;
 
-            // Check for start constraint
-            if (_startConstraint != null)
+            if (!PopulateBufferByMatchConstraint(current, characterStack))
             {
-                while (IsMatchConstraint(current, _startConstraint) && characterStack.Any())
-                {
-                    current = characterStack.Pop();
-                    _buffer = string.Concat(_buffer, current);
+                characterStack = RewindStack(characterStack);
+
+                return false;
+            }
+           
+
+            _buffer = string.Empty;
+
+            current = characterStack.Peek();
+
+            Regex? endingConstraint = TryConstructMatchConstraint(_endingSequence);
+
+            while (!(IsMatchCharacterset(current, _endingSequence) || IsMatchRegexConstraint(current, endingConstraint))) {
+
+                if (current != '\r')
                     Curser.position++;
 
-                    if (beginRegex.IsMatch(_buffer))
-                    {
-                        ConsumeIgnoredText(characterStack, characterStack.Pop(), endRegex);
-                        break;
-                    }
-                }
-            } else
-            {
-                if (beginRegex.IsMatch(current.ToString()) && characterStack.Any()) {
+                current = characterStack.Pop();
 
-                    characterStack.Pop();
-
-                    ConsumeIgnoredText(characterStack, current, endRegex);
-                }
+                if (current == '\n')
+                    Curser.NewLine();
             }
+
+
+            FinalizeMatch(current, characterStack);
+
+            return true;
         }
 
-
-        private void ConsumeIgnoredText(Stack<char> characterStack, char current, Regex endRegex)
+        private void FinalizeMatch(char current, Stack<char> characterStack)
         {
-            if (_endConstraint != null)
+            Regex? endingConstraint = TryConstructMatchConstraint(_endingSequence);
+
+            while (IsMatchCharacterset(current, _endingSequence) || IsMatchRegexConstraint(current, endingConstraint))
             {
-                while (characterStack.Any() && !IsMatchConstraint(current, _endConstraint))
-                {
-                    current = characterStack.Pop();
+                _buffer = string.Concat(_buffer, current);
 
-                    Curser.position++;
+                if (!characterStack.Any() || IsExactMatch(_buffer, _endingSequence))
+                    break;
 
-                    if (Regex.IsMatch(current.ToString(), @"\n"))
-                        Curser.NewLine();
-                    
-                }
+                current = characterStack.Pop();
 
-                // After the loop as finished, we should have hit our match constraint. At this point 
-                // we can match the ending comment and go back to our original parsing
-                _buffer = string.Empty;
-
-                while (characterStack.Any() && IsMatchConstraint(current, _endConstraint) && !(Regex.IsMatch(current.ToString(), @"\s")))
-                {
-                    _buffer = string.Concat(_buffer, current);
-
-                    Curser.position++;
-
-                    if (endRegex.IsMatch(_buffer))
-                    {
-                        _buffer = string.Empty;
-                        break;
-                    }
-
-                    current = characterStack.Pop();
-                }
+                Curser.position++;
             }
-            else
-            {
-                while (characterStack.Any() && !endRegex.IsMatch(current.ToString()))
-                {
-                    current = characterStack.Pop();
 
-                    Curser.position++;
-
-                    if (Regex.IsMatch(current.ToString(), @"\n"))
-                        Curser.NewLine();
-
-                    if (current.Equals(_endingSequence))
-                        break;
-                }
-            }
+            _buffer = string.Empty;
         }
 
-        private bool IsMatchConstraint(char current, Regex constraint)
+        private bool PopulateBufferByMatchConstraint(char current, Stack<char> characterStack)
         {
+            Regex? beginningConstraint = TryConstructMatchConstraint(_beginningSequence);
+
+            current = characterStack.Pop();
+            _buffer = current.ToString();
+
+            while (IsMatchCharacterset(current, _beginningSequence) || IsMatchRegexConstraint(current, beginningConstraint))
+            {
+                Curser.position++;
+
+                _buffer = string.Concat(_buffer, current);
+
+                current = characterStack.Pop();
+
+                if (IsExactMatch(_buffer, _beginningSequence))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsExactMatch(string buffer, string predicate)
+        {
+            Regex predicateRegex = new Regex(predicate);
+
+            if (predicate.Equals(buffer) || predicateRegex.IsMatch(buffer))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsMatchCharacterset(char current, string predicate)
+        {
+            char[] predicateChars = predicate.Replace(@"\", "").Replace(@"(","").Replace(@")", "").ToCharArray();
+
+            foreach (char c in predicateChars)
+            {
+                if (current == c)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsMatchRegexConstraint(char current, Regex? constraint)
+        {
+            if (constraint == null) return false;
+
             if (constraint.IsMatch(current.ToString()))
             {
                 return true;
@@ -131,7 +142,7 @@ namespace Tokenizer.EscapeSequenceImplementation
             return false;
         }
 
-        private Regex? TryConstractMatchConstraint(string targetSequence)
+        private Regex? TryConstructMatchConstraint(string targetSequence)
         {
             if (targetSequence.StartsWith('(') && targetSequence.EndsWith(')')) {
                 return new Regex(targetSequence.Replace('(', '[').Replace(')', ']'));
@@ -142,6 +153,22 @@ namespace Tokenizer.EscapeSequenceImplementation
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Rewinds the character stack if the multi character extractor cannot match 
+        /// the regex
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        protected virtual Stack<char> RewindStack(Stack<char> input)
+        {
+            for (int i = _buffer.Length-1; i >= 0; i--)
+            {
+                input.Push(_buffer[i]);
+            }
+
+            return input;
         }
 
     }

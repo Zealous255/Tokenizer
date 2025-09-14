@@ -12,6 +12,12 @@ namespace Tokenizer.TokenExtraction
             position = 1;
             line++;
         }
+
+        public static void ResetCurser()
+        {
+            line = 1;
+            position = 1;
+        }
     }
 
     public abstract class TokenizerBase<TokenTypeT> where TokenTypeT : Enum
@@ -44,6 +50,8 @@ namespace Tokenizer.TokenExtraction
 
         public List<Token<TokenTypeT>> Tokenize(string inputString)
         {
+            Curser.ResetCurser();
+
             List<Token<TokenTypeT>> tokens = new List<Token<TokenTypeT>>();
 
             PrepareCharacterStack(inputString);
@@ -57,7 +65,14 @@ namespace Tokenizer.TokenExtraction
                     _tokenStack.Pop();
                 } else
                 {
-                    DiscardEscapedCharacters();
+                    bool matchedEscapeSequence = ProcessedEscapeSequence();
+
+                    // Continue until we either run out of tokens or have processed all the 
+                    // escape sequences that still stand in our way
+                    while (matchedEscapeSequence)
+                    {
+                        matchedEscapeSequence = ProcessedEscapeSequence();
+                    } 
 
                     if (_tokenStack.Any())
                         tokens.Add(FindTokenMatch(_tokenStack));
@@ -73,18 +88,24 @@ namespace Tokenizer.TokenExtraction
             return (Regex.Match(current.ToString(), @"([ ]|\t)").Success);
         }
 
-        private void DiscardEscapedCharacters()
+        private bool ProcessedEscapeSequence()
         {
             foreach (EscapeSquenceDefinition escapeSquenceDefinition in _escapeSequenceDefintiions)
             {
                 if (_tokenStack.Any())
                 {
-                    escapeSquenceDefinition.EscapeSequence.ProcessDiscardSequence(_tokenStack);
+                    if (escapeSquenceDefinition.EscapeSequence.ProcessedEscapeSequence(_tokenStack))
+                    {
+                        return true;
+                    }
+                    
                 } else
                 {
                     break;
                 }
             }
+
+            return false;
         }
 
         private Token<TokenTypeT> FindTokenMatch(Stack<char> tokenStack)

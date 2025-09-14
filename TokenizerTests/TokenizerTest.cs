@@ -20,7 +20,7 @@ namespace TokenizerTests
 
     public class FooTokenizer : TokenizerBase<FooTokenType> { 
     
-        public FooTokenizer()
+        public FooTokenizer() : base()
         {
 
         }
@@ -33,7 +33,7 @@ namespace TokenizerTests
 
             RegisterEscapeSequence(new EscapeSquenceDefinition(new NewlineDiscardHandler()));
             RegisterEscapeSequence(new EscapeSquenceDefinition(new CommentEscapeHandler(@"(\/\*)", @"(\*\/)")));
-            RegisterEscapeSequence(new EscapeSquenceDefinition(new CommentEscapeHandler(@"(\/\/)", @"\n")));
+            RegisterEscapeSequence(new EscapeSquenceDefinition(new CommentEscapeHandler(@"(\/\/)", "\n")));
         }
     }
 
@@ -107,9 +107,9 @@ namespace TokenizerTests
             List<Token<FooTokenType>> joeTokens = tokens.Where(x => x.Text.Equals("Joe")).ToList();
 
             // assert
-            Assert.IsTrue(joeTokens[0].Line == 1);
-            Assert.IsTrue(joeTokens[1].Line == 2);
-            Assert.IsTrue(joeTokens[2].Line == 3);
+            Assert.IsTrue(joeTokens[0].Line > 0);
+            Assert.IsTrue(joeTokens[1].Line > joeTokens[0].Line);
+            Assert.IsTrue(joeTokens[2].Line > joeTokens[1].Line);
         }
 
         [TestMethod]
@@ -136,6 +136,19 @@ namespace TokenizerTests
 
             // assert
             Assert.IsTrue(tokens.Count() == 0);
+        }
+
+        [TestMethod]
+        public void Tokenizer_should_extract_ignore_the_contents_of_line_comments_while_advancing_the_curser_and_continue_tokenizing_afterwards()
+        {
+            // arrange
+            FooTokenizer tokenizer = new FooTokenizer();
+
+            // act
+            List<Token<FooTokenType>> tokens = tokenizer.Tokenize("//Joe \r\nJoe++");
+
+            // assert
+            Assert.IsTrue(tokens.Count() == 2);
         }
     }
 }

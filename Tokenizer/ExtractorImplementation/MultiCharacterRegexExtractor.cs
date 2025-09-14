@@ -15,6 +15,12 @@ namespace Tokenizer.Extractors
             _matchCharacterConstraint = SetMatchConstraint(matchPredicate);
         }
 
+        public MultiCharacterRegexExtractor(string matchPredicate, string customConstraint) : base(matchPredicate)
+        {
+            _regexMatch = new Regex(_matchPredicate);
+            _matchCharacterConstraint = new Regex(customConstraint);
+        }
+
         public override Token<TokenTypeT> TryExtractToken(TokenTypeT tokenType)
         {
             Token<TokenTypeT> token = base.TryExtractToken(tokenType);
@@ -58,7 +64,7 @@ namespace Tokenizer.Extractors
         /// <returns></returns>
         private string ConstructMatchConstraint(string regex)
         {
-            return regex.Replace("^", "[").Replace("$", "]");
+            return regex.Replace("^", "[").Replace("$", "]").Replace("(", "").Replace(")", "");
         }
 
     }

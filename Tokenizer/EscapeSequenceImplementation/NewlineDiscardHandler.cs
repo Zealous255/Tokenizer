@@ -15,8 +15,7 @@ namespace Tokenizer.EscapeSequenceImplementation
         {
         }
 
-
-        public void ProcessDiscardSequence(Stack<char> characterStack)
+        public bool ProcessedEscapeSequence(Stack<char> characterStack)
         {
             char current = characterStack.Peek();
 
@@ -31,6 +30,8 @@ namespace Tokenizer.EscapeSequenceImplementation
                     characterStack.Pop();
 
                     Curser.NewLine();
+
+                    return true;
                 }
             }
             else if (Regex.IsMatch(current.ToString(), @"\n"))
@@ -38,9 +39,11 @@ namespace Tokenizer.EscapeSequenceImplementation
                 characterStack.Pop();
 
                 Curser.NewLine();
+
+                return true;
             }
 
+            return false;
         }
-
     }
 }
